@@ -12,12 +12,19 @@ pygame.display.set_caption('Jumper')
 green = (0, 255, 0)
 white = (255, 255, 255)
 blue = (0, 0, 255)
+black = (0, 0, 0)
 
 clock = pygame.time.Clock()
 
 carImg = pygame.image.load('image/kangaroo.png')
 background_img = pygame.image.load('image/background.png')
 background = pygame.transform.scale(background_img, (display_width, display_height))
+
+
+def show_score(count):
+    font = pygame.font.SysFont(None, 25)
+    text = font.render("Dodged: " + str(count), True, black)
+    gameDisplay.blit(text, (0, 0))
 
 
 def draw_object(obj_x, obj_y, obj_width, obj_height, color):
@@ -30,6 +37,7 @@ def draw_kangaroo(x, y):
 
 def game_loop():
     game_exit = False
+    score = 0
 
     # height of water and ground
     object_height = 106
@@ -95,6 +103,9 @@ def game_loop():
         # kangaroo
         draw_kangaroo(kangaroo_x, kangaroo_y)
 
+        # show score
+        show_score(score)
+
         # draw ground
         # draw_object(0, display_height - object_height, display_width, object_height, green)
 
@@ -104,6 +115,7 @@ def game_loop():
         if water_x < -water_width:
             water_x = display_width
             water_width = random.randrange(water_min_width, water_max_width)
+            score += 1
 
         pygame.display.update()
         clock.tick(60)
@@ -112,7 +124,9 @@ def game_loop():
         if kangaroo_y + kangaroo_height == water_y and \
                 (water_x < kangaroo_x + kangaroo_width - 10 < water_x + water_width or
                  water_x < kangaroo_x + 20 < water_x + water_width):
-            game_exit = True
+            water_x = display_width
+            bg_index = 0
+            score = 0
 
 
 game_loop()
