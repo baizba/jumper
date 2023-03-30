@@ -1,5 +1,6 @@
-import pygame
 import random
+
+import pygame
 
 pygame.init()
 
@@ -35,6 +36,10 @@ def draw_kangaroo(x, y):
     gameDisplay.blit(carImg, (x, y))
 
 
+def going_up(event, falling_down):
+    return event.type == pygame.KEYDOWN and event.key == pygame.K_UP and not falling_down
+
+
 def game_loop():
     game_exit = False
     score = 0
@@ -51,7 +56,7 @@ def game_loop():
     # kangaroo jump
     max_vert_offset = 15
     vertical_offset = max_vert_offset
-    falling_down = False
+    is_falling_down = False
 
     # water
     water_x = display_width
@@ -71,23 +76,23 @@ def game_loop():
             if event.type == pygame.QUIT:
                 game_exit = True
 
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_UP and not falling_down:
+        if going_up(event, is_falling_down):
             if vertical_offset > 0:
                 # reduce vertical offset gradually
                 vertical_offset -= 1
                 kangaroo_y -= vertical_offset
                 # if we jumped to mx height then prevent hanging in the air and start falling back
                 if vertical_offset == 0:
-                    falling_down = True
+                    is_falling_down = True
         else:
             if vertical_offset < max_vert_offset:
                 # decrease vertical offset gradually
                 kangaroo_y += vertical_offset
                 vertical_offset += 1
                 # just a switch to prevent mid-air jumping
-                falling_down = True
+                is_falling_down = True
                 if vertical_offset == max_vert_offset:
-                    falling_down = False
+                    is_falling_down = False
 
         gameDisplay.fill(white)
 
