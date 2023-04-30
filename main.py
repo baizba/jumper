@@ -68,13 +68,19 @@ def game_loop():
     # background index
     bg_index = 0
 
-    # scrolling speed (how fast objects go from right to left)
+    # object scrolling speed (how fast objects go from right to left)
     scroll_speed = 10
 
     while not game_exit:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_exit = True
+
+        # automatic jump
+        if water_x < kangaroo_x + kangaroo_width + 10 < water_x + water_width + 10:
+            pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
+        else:
+            pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_UP))
 
         if going_up(event, is_falling_down):
             if vertical_offset > 0:
@@ -103,7 +109,8 @@ def game_loop():
         if bg_index < - display_width:
             bg_index = 0
 
-        bg_index -= scroll_speed
+        # how fast background moves (background scrolling)
+        bg_index -= 2
 
         # kangaroo
         draw_kangaroo(kangaroo_x, kangaroo_y)
