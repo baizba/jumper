@@ -17,7 +17,7 @@ black = (0, 0, 0)
 
 clock = pygame.time.Clock()
 
-carImg = pygame.image.load('image/kangaroo.png')
+kangaroo_img = pygame.image.load('image/kangaroo.png')
 background_img = pygame.image.load('image/background.png')
 background = pygame.transform.scale(background_img, (display_width, display_height))
 
@@ -33,7 +33,7 @@ def draw_object(obj_x, obj_y, obj_width, obj_height, color):
 
 
 def draw_kangaroo(x, y):
-    gameDisplay.blit(carImg, (x, y))
+    gameDisplay.blit(kangaroo_img, (x, y))
 
 
 def going_up(event, falling_down):
@@ -139,6 +139,9 @@ def game_loop():
             water_x = display_width
             bg_index = 0
             score = 0
+
+        # log the command and distance to water in current frame
+        # distance = water_x - kangaroo_x + kangaroo_width
 
 
 game_loop()
