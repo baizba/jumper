@@ -2,6 +2,8 @@ import random
 
 import pygame
 
+from kangaroo import Kangaroo
+
 pygame.init()
 
 display_width = 800
@@ -32,12 +34,12 @@ def draw_object(obj_x, obj_y, obj_width, obj_height, color):
     pygame.draw.rect(gameDisplay, color, [obj_x, obj_y, obj_width, obj_height])
 
 
-def draw_kangaroo(x, y):
-    gameDisplay.blit(kangaroo_img, (x, y))
+def draw_kangaroo(kangaroo):
+    gameDisplay.blit(kangaroo_img, (kangaroo.kangaroo_x, kangaroo.kangaroo_y))
 
 
-def going_up(event, falling_down):
-    return event.type == pygame.KEYDOWN and event.key == pygame.K_UP and not falling_down
+def keyboard_up(event):
+    return event.type == pygame.KEYDOWN and event.key == pygame.K_UP
 
 
 def game_loop():
@@ -47,16 +49,8 @@ def game_loop():
     # height of water and ground
     object_height = 106
 
-    # kangaroo position
-    kangaroo_height = 100
-    kangaroo_width = 85
-    kangaroo_x = 100
-    kangaroo_y = display_height - kangaroo_height - object_height
-
-    # kangaroo jump
-    max_vert_offset = 15
-    vertical_offset = max_vert_offset
-    is_falling_down = False
+    # kangaroo
+    kangaroo = Kangaroo(display_height, object_height)
 
     # water
     water_x = display_width
@@ -76,29 +70,10 @@ def game_loop():
             if event.type == pygame.QUIT:
                 game_exit = True
 
-        # automatic jump
-        if water_x < kangaroo_x + kangaroo_width + 10 < water_x + water_width + 10:
-            pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
+        if keyboard_up(event) and not kangaroo.is_in_air:
+            kangaroo.jump()
         else:
-            pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_UP))
-
-        if going_up(event, is_falling_down):
-            if vertical_offset > 0:
-                # reduce vertical offset gradually
-                vertical_offset -= 1
-                kangaroo_y -= vertical_offset
-                # if we jumped to mx height then prevent hanging in the air and start falling back
-                if vertical_offset == 0:
-                    is_falling_down = True
-        else:
-            if vertical_offset < max_vert_offset:
-                # decrease vertical offset gradually
-                kangaroo_y += vertical_offset
-                vertical_offset += 1
-                # just a switch to prevent mid-air jumping
-                is_falling_down = True
-                if vertical_offset == max_vert_offset:
-                    is_falling_down = False
+            kangaroo.fall_down()
 
         gameDisplay.fill(white)
 
@@ -113,7 +88,7 @@ def game_loop():
         bg_index -= 2
 
         # kangaroo
-        draw_kangaroo(kangaroo_x, kangaroo_y)
+        draw_kangaroo(kangaroo)
 
         # show score
         show_score(score)
@@ -133,9 +108,9 @@ def game_loop():
         clock.tick(60)
 
         # check for crash (if kangaroo on ground)
-        if kangaroo_y + kangaroo_height == water_y and \
-                (water_x < kangaroo_x + kangaroo_width - 10 < water_x + water_width or
-                 water_x < kangaroo_x + 20 < water_x + water_width):
+        if kangaroo.kangaroo_y + kangaroo.kangaroo_height == water_y and \
+                (water_x < kangaroo.kangaroo_x + kangaroo.kangaroo_width - 10 < water_x + water_width or
+                 water_x < kangaroo.kangaroo_x + 20 < water_x + water_width):
             water_x = display_width
             bg_index = 0
             score = 0
