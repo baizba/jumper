@@ -70,7 +70,7 @@ def game_loop():
             if event.type == pygame.QUIT:
                 game_exit = True
 
-        if keyboard_up(event) and not kangaroo.is_in_air:
+        if keyboard_up(event) and not kangaroo.is_jum_in_progress:
             kangaroo.jump()
         else:
             kangaroo.fall_down()
