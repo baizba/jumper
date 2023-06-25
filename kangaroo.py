@@ -2,23 +2,17 @@ class Kangaroo:
     # image
     kangaroo_img = 'image/kangaroo.png'
 
-    # kangaroo position
-    kangaroo_height = 0
-    kangaroo_width = 0
-    kangaroo_x = 0
-    kangaroo_y = 0
-
-    # kangaroo jump
-    max_vert_acceleration = 15
-    vertical_acceleration = max_vert_acceleration
-    is_jum_in_progress = False
-
     def __init__(self, display_height, height_above_ground):
+        # kangaroo position
         self.kangaroo_height = 100
         self.kangaroo_width = 85
         self.kangaroo_x = 100
-        self.height_above_ground = display_height - self.kangaroo_height - height_above_ground
         self.kangaroo_y = display_height - self.kangaroo_height - height_above_ground
+
+        # kangaroo jump
+        self.max_vert_acceleration = 15
+        self.vertical_acceleration = self.max_vert_acceleration
+        self.is_jum_in_progress = False
 
     def jump(self):
         if self.vertical_acceleration > 0:
