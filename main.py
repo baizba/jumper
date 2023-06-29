@@ -75,7 +75,6 @@ def game_loop():
         # background
         gameDisplay.blit(background, (bg_index, 0))
         gameDisplay.blit(background, (bg_index + display_width, 0))
-
         if bg_index < - display_width:
             bg_index = 0
 
