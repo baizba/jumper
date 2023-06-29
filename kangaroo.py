@@ -4,10 +4,13 @@ class Kangaroo:
 
     def __init__(self, display_height, height_above_ground):
         # kangaroo position
+        Kangaroo.ground_height = height_above_ground
+        self.height_above_ground = height_above_ground
         self.kangaroo_height = 100
         self.kangaroo_width = 85
         self.kangaroo_x = 100
         self.kangaroo_y = display_height - self.kangaroo_height - height_above_ground
+        self.ground_level = self.kangaroo_y
 
         # kangaroo jump
         self.max_vert_acceleration = 15
@@ -32,3 +35,11 @@ class Kangaroo:
             self.is_jum_in_progress = True
             if self.vertical_acceleration == self.max_vert_acceleration:
                 self.is_jum_in_progress = False
+
+    def is_on_ground(self):
+        return self.kangaroo_y == self.ground_level
+
+    def is_in_water(self, water):
+        return self.is_on_ground() and \
+               (water.water_x < self.kangaroo_x + self.kangaroo_width - 10 < water.water_x + water.water_width or
+                water.water_x < self.kangaroo_x + 20 < water.water_x + water.water_width)

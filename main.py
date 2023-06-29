@@ -1,8 +1,7 @@
-import random
-
 import pygame
 
 from kangaroo import Kangaroo
+from water import Water
 
 pygame.init()
 
@@ -23,6 +22,12 @@ kangaroo_img = pygame.image.load('image/kangaroo.png')
 background_img = pygame.image.load('image/background.png')
 background = pygame.transform.scale(background_img, (display_width, display_height))
 
+# object scrolling speed (how fast objects go from right to left)
+scroll_speed = 10
+
+# height of water and ground (how high from the ground are the objects)
+height_above_ground = 106
+
 
 def show_score(count):
     font = pygame.font.SysFont(None, 25)
@@ -30,8 +35,13 @@ def show_score(count):
     gameDisplay.blit(text, (0, 0))
 
 
-def draw_object(obj_x, obj_y, obj_width, obj_height, color):
-    pygame.draw.rect(gameDisplay, color, [obj_x, obj_y, obj_width, obj_height])
+def animate_water(water, x):
+    pygame.draw.rect(gameDisplay, water.water_color,
+                     [water.water_x, water.water_y, water.water_width, water.water_height])
+    # if the water is of the screen re-initialize water
+    if water.water_x < -water.water_width:
+        water.reset(x)
+    water.water_x -= scroll_speed
 
 
 def draw_kangaroo(kangaroo):
@@ -46,36 +56,26 @@ def game_loop():
     game_exit = False
     score = 0
 
-    # height of water and ground
-    object_height = 106
-
     # kangaroo
-    kangaroo = Kangaroo(display_height, object_height)
+    kangaroo_jack = Kangaroo(display_height, height_above_ground)
 
     # water
-    water_x = display_width
-    water_y = display_height - object_height
-    water_min_width = 50
-    water_max_width = 200
-    water_width = random.randrange(water_min_width, water_max_width)
+    blue_water = Water(display_width, display_height, height_above_ground)
 
     # background index
     bg_index = 0
-
-    # object scrolling speed (how fast objects go from right to left)
-    scroll_speed = 10
 
     while not game_exit:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_exit = True
 
-        if keyboard_up(event) and not kangaroo.is_jum_in_progress:
-            kangaroo.jump()
+        if keyboard_up(event) and not kangaroo_jack.is_jum_in_progress:
+            kangaroo_jack.jump()
         else:
-            kangaroo.fall_down()
+            kangaroo_jack.fall_down()
 
-        gameDisplay.fill(white)
+        # gameDisplay.fill(white)
 
         # background
         gameDisplay.blit(background, (bg_index, 0))
@@ -88,32 +88,26 @@ def game_loop():
         bg_index -= 2
 
         # kangaroo
-        draw_kangaroo(kangaroo)
+        draw_kangaroo(kangaroo_jack)
+
+        # animate water
+        animate_water(blue_water, display_width)
+
+        # check to increase score (water is off the screen)
+        if blue_water.water_x < -blue_water.water_width:
+            score += 1
 
         # show score
         show_score(score)
 
-        # draw ground
-        # draw_object(0, display_height - object_height, display_width, object_height, green)
-
-        # animate water
-        draw_object(water_x, water_y, water_width, object_height, blue)
-        water_x -= scroll_speed
-        if water_x < -water_width:
-            water_x = display_width
-            water_width = random.randrange(water_min_width, water_max_width)
-            score += 1
-
-        pygame.display.update()
-        clock.tick(60)
-
         # check for crash (if kangaroo on ground)
-        if kangaroo.kangaroo_y + kangaroo.kangaroo_height == water_y and \
-                (water_x < kangaroo.kangaroo_x + kangaroo.kangaroo_width - 10 < water_x + water_width or
-                 water_x < kangaroo.kangaroo_x + 20 < water_x + water_width):
-            water_x = display_width
+        if kangaroo_jack.is_in_water(blue_water):
+            blue_water.water_x = display_width
             bg_index = 0
             score = 0
+
+        pygame.display.update()
+        clock.tick(40)
 
         # log the command and distance to water in current frame
         # distance = water_x - kangaroo_x + kangaroo_width
