@@ -11,9 +11,6 @@ display_height = 600
 gameDisplay = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('Jumper')
 
-green = (0, 255, 0)
-white = (255, 255, 255)
-blue = (0, 0, 255)
 black = (0, 0, 0)
 
 clock = pygame.time.Clock()
@@ -75,8 +72,6 @@ def game_loop():
         else:
             kangaroo_jack.fall_down()
 
-        # gameDisplay.fill(white)
-
         # background
         gameDisplay.blit(background, (bg_index, 0))
         gameDisplay.blit(background, (bg_index + display_width, 0))
@@ -108,9 +103,6 @@ def game_loop():
 
         pygame.display.update()
         clock.tick(40)
-
-        # log the command and distance to water in current frame
-        # distance = water_x - kangaroo_x + kangaroo_width
 
 
 game_loop()
