@@ -4,10 +4,6 @@ from Kangaroo import Kangaroo
 from Water import Water
 
 
-def keyboard_up(event):
-    return event.type == pygame.KEYDOWN and event.key == pygame.K_UP
-
-
 def quit_game():
     pygame.quit()
 
@@ -37,9 +33,32 @@ class KangarooJackGame:
         # height of water and ground (how high from the ground are the objects)
         self.height_above_ground = 106
 
-    def show_score(self, count):
+        # game exit control (when you click X)
+        self.game_exit = False
+
+        # score
+        self.score = 0
+
+        # index for background animation
+        self.bg_index = 0
+
+        # kangaroo
+        self.kangaroo_jack = Kangaroo(self.display_height, self.height_above_ground)
+
+        # water
+        self.blue_water = Water(self.display_width, self.display_height, self.height_above_ground)
+
+        # last event
+        self.event = None
+
+    def keyboard_up(self):
+        if self.event.type == pygame.KEYDOWN and self.event.key == pygame.K_UP:
+            return True
+        return False
+
+    def update_score(self):
         font = pygame.font.SysFont(None, 25)
-        text = font.render("Dodged: " + str(count), True, self.black)
+        text = font.render("Dodged: " + str(self.score), True, self.black)
         self.gameDisplay.blit(text, (0, 0))
 
     def animate_water(self, water, x):
@@ -53,59 +72,58 @@ class KangarooJackGame:
     def draw_kangaroo(self, kangaroo):
         self.gameDisplay.blit(self.kangaroo_img, (kangaroo.kangaroo_x, kangaroo.kangaroo_y))
 
-    def game_loop(self):
-        game_exit = False
-        score = 0
+    def reset_game(self):
+        # reset score
+        self.score = 0
+
+        # background animation index reset
+        self.bg_index = 0
+
+        # reset water to right
+        self.blue_water.reset(self.display_width)
+
+    def is_game_exit(self):
+        for event in pygame.event.get():
+            # remember the last event for later usage
+            self.event = event
+            if event.type == pygame.QUIT:
+                return True
+        return False
+
+    def step(self):
+        if self.keyboard_up() and not self.kangaroo_jack.is_jum_in_progress:
+            self.kangaroo_jack.jump()
+        else:
+            self.kangaroo_jack.fall_down()
+
+        # background
+        self.gameDisplay.blit(self.background, (self.bg_index, 0))
+        self.gameDisplay.blit(self.background, (self.bg_index + self.display_width, 0))
+        if self.bg_index < - self.display_width:
+            self.bg_index = 0
+
+        # how fast background moves (background scrolling)
+        self.bg_index -= 2
 
         # kangaroo
-        kangaroo_jack = Kangaroo(self.display_height, self.height_above_ground)
+        self.draw_kangaroo(self.kangaroo_jack)
 
-        # water
-        blue_water = Water(self.display_width, self.display_height, self.height_above_ground)
+        # animate water
+        self.animate_water(self.blue_water, self.display_width)
 
-        # background index
-        bg_index = 0
+        # check to increase score (water is off the screen)
+        if self.blue_water.water_x < -self.blue_water.water_width:
+            self.score += 1
 
-        while not game_exit:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    game_exit = True
+        # show score
+        self.update_score()
 
-            if keyboard_up(event) and not kangaroo_jack.is_jum_in_progress:
-                kangaroo_jack.jump()
-            else:
-                kangaroo_jack.fall_down()
+    def render(self, frame_rate):
+        pygame.display.update()
+        self.clock.tick(frame_rate)
 
-            # background
-            self.gameDisplay.blit(self.background, (bg_index, 0))
-            self.gameDisplay.blit(self.background, (bg_index + self.display_width, 0))
-            if bg_index < - self.display_width:
-                bg_index = 0
-
-            # how fast background moves (background scrolling)
-            bg_index -= 2
-
-            # kangaroo
-            self.draw_kangaroo(kangaroo_jack)
-
-            # animate water
-            self.animate_water(blue_water, self.display_width)
-
-            # check to increase score (water is off the screen)
-            if blue_water.water_x < -blue_water.water_width:
-                score += 1
-
-            # show score
-            self.show_score(score)
-
-            # check for crash (if kangaroo on ground)
-            if kangaroo_jack.is_in_water(blue_water):
-                blue_water.water_x = self.display_width
-                bg_index = 0
-                score = 0
-
-            pygame.display.update()
-            self.clock.tick(40)
+    def is_crash(self):
+        return self.kangaroo_jack.is_in_water(self.blue_water)
 
     def update_display(self, frame_rate):
         pygame.display.update()
