@@ -56,7 +56,7 @@ class KangarooJackGame:
             return True
         return False
 
-    def update_score(self):
+    def show_score(self):
         font = pygame.font.SysFont(None, 25)
         text = font.render("Dodged: " + str(self.score), True, self.black)
         self.gameDisplay.blit(text, (0, 0))
@@ -96,6 +96,11 @@ class KangarooJackGame:
         else:
             self.kangaroo_jack.fall_down()
 
+        # check to increase score (water is off the screen)
+        if self.blue_water.water_x < -self.blue_water.water_width:
+            self.score += 1
+
+    def render(self, frame_rate):
         # background
         self.gameDisplay.blit(self.background, (self.bg_index, 0))
         self.gameDisplay.blit(self.background, (self.bg_index + self.display_width, 0))
@@ -111,14 +116,9 @@ class KangarooJackGame:
         # animate water
         self.animate_water(self.blue_water, self.display_width)
 
-        # check to increase score (water is off the screen)
-        if self.blue_water.water_x < -self.blue_water.water_width:
-            self.score += 1
-
         # show score
-        self.update_score()
+        self.show_score()
 
-    def render(self, frame_rate):
         pygame.display.update()
         self.clock.tick(frame_rate)
 
