@@ -90,11 +90,21 @@ class KangarooJackGame:
                 return True
         return False
 
-    def step(self):
-        if self.keyboard_up() and not self.kangaroo_jack.is_jum_in_progress:
-            self.kangaroo_jack.jump()
+    '''
+    This method can run without action argument if you play the game via keyboard.
+    Or you can pass the action argument (1 or 0). This is used when playing via artificial agents (machine learning)
+    '''
+    def step(self, action=None):
+        if action is None:
+            if self.keyboard_up() and not self.kangaroo_jack.is_jum_in_progress:
+                self.kangaroo_jack.jump()
+            else:
+                self.kangaroo_jack.fall_down()
         else:
-            self.kangaroo_jack.fall_down()
+            if action == 1 and not self.kangaroo_jack.is_jum_in_progress:
+                self.kangaroo_jack.jump()
+            else:
+                self.kangaroo_jack.fall_down()
 
         # check to increase score (water is off the screen)
         if self.blue_water.water_x < -self.blue_water.water_width:
@@ -124,7 +134,3 @@ class KangarooJackGame:
 
     def is_crash(self):
         return self.kangaroo_jack.is_in_water(self.blue_water)
-
-    def update_display(self, frame_rate):
-        pygame.display.update()
-        self.clock.tick(frame_rate)

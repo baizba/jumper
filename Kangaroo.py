@@ -4,8 +4,6 @@ class Kangaroo:
 
     def __init__(self, display_height, height_above_ground):
         # kangaroo position
-        Kangaroo.ground_height = height_above_ground
-        self.height_above_ground = height_above_ground
         self.kangaroo_height = 100
         self.kangaroo_width = 85
         self.kangaroo_x = 100
