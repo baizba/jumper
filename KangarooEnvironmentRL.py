@@ -51,7 +51,7 @@ class KangarooEnvironment(Env):
         super().reset(seed=seed)
         info = {"score": self.kangaroo_game.score}
         self.kangaroo_game.reset_game()
-        self.state = (self.distance_to_water(), 0)
+        self.state = (self.distance_to_water(), self.height_above_water())
         return np.array(self.state, dtype=np.float32)
 
     def distance_to_water(self):
